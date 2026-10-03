@@ -1,1 +1,447 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#25D366">
+  <title>DL Pay</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f5f7f8;
+      color: #111;
+    }
+
+    .app {
+      max-width: 480px;
+      margin: auto;
+      min-height: 100vh;
+      background: white;
+    }
+
+    .header {
+      background: #25D366;
+      color: white;
+      padding: 22px 20px;
+      border-radius: 0 0 25px 25px;
+    }
+
+    .brand {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .welcome {
+      margin-top: 8px;
+      font-size: 15px;
+      opacity: .9;
+    }
+
+    .balance-card {
+      margin: -5px 18px 20px;
+      background: white;
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.10);
+    }
+
+    .balance-title {
+      color: #777;
+      font-size: 14px;
+    }
+
+    .balance {
+      font-size: 34px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .currency {
+      font-size: 15px;
+      color: #777;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      padding: 0 18px;
+    }
+
+    .action {
+      border: none;
+      background: white;
+      border-radius: 18px;
+      padding: 20px 10px;
+      box-shadow: 0 3px 12px rgba(0,0,0,.08);
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .send .icon {
+      color: #25D366;
+    }
+
+    .receive .icon {
+      color: #128C7E;
+    }
+
+    .history {
+      padding: 28px 18px 100px;
+    }
+
+    .history h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+
+    .transaction {
+      display: flex;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: #25D366;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 12px;
+    }
+
+    .transaction-info {
+      flex: 1;
+    }
+
+    .transaction-name {
+      font-weight: bold;
+    }
+
+    .transaction-date {
+      font-size: 12px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .amount {
+      font-weight: bold;
+    }
+
+    .received {
+      color: #25A244;
+    }
+
+    .sent {
+      color: #D93025;
+    }
+
+    .bottom {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      height: 70px;
+      background: white;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .nav {
+      background: none;
+      border: none;
+      color: #777;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .nav.active {
+      color: #25D366;
+      font-weight: bold;
+    }
+
+    .nav-icon {
+      display: block;
+      font-size: 23px;
+      margin-bottom: 3px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-content {
+      width: 100%;
+      max-width: 480px;
+      background: white;
+      border-radius: 25px 25px 0 0;
+      padding: 25px;
+    }
+
+    .modal-content h2 {
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+
+    .main-button {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      background: #25D366;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close {
+      background: #eee;
+      color: #333;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <div class="brand">DL Pay</div>
+    <div class="welcome">Tu dinero. Simple. Seguro.</div>
+  </div>
+
+  <div class="balance-card">
+    <div class="balance-title">Saldo disponible</div>
+    <div class="balance">$0.00</div>
+    <div class="currency">USD</div>
+  </div>
+
+  <div class="actions">
+
+    <button class="action send" onclick="openSend()">
+      <div class="icon">↑</div>
+      Enviar dinero
+    </button>
+
+    <button class="action receive" onclick="openReceive()">
+      <div class="icon">↓</div>
+      Recibir dinero
+    </button>
+
+    <button class="action" onclick="alert('Próximamente: agregar dinero')">
+      <div class="icon">＋</div>
+      Agregar dinero
+    </button>
+
+    <button class="action" onclick="showHistory()">
+      <div class="icon">↔</div>
+      Historial
+    </button>
+
+  </div>
+
+  <div class="history">
+    <h2>Actividad reciente</h2>
+
+    <div id="empty">
+      <p style="color:#888;">
+        Todavía no tienes transacciones.
+      </p>
+    </div>
+
+    <div id="transactions"></div>
+  </div>
+
+</div>
+
+<div class="bottom">
+
+  <button class="nav active">
+    <span class="nav-icon">⌂</span>
+    Inicio
+  </button>
+
+  <button class="nav" onclick="openSend()">
+    <span class="nav-icon">↑</span>
+    Enviar
+  </button>
+
+  <button class="nav" onclick="openReceive()">
+    <span class="nav-icon">↓</span>
+    Recibir
+  </button>
+
+  <button class="nav" onclick="alert('Perfil DL Pay')">
+    <span class="nav-icon">●</span>
+    Perfil
+  </button>
+
+</div>
+
+
+<!-- ENVIAR DINERO -->
+
+<div class="modal" id="sendModal">
+
+  <div class="modal-content">
+
+    <h2>Enviar dinero</h2>
+
+    <input
+      id="phone"
+      type="tel"
+      placeholder="Número de teléfono"
+    >
+
+    <input
+      id="sendAmount"
+      type="number"
+      placeholder="Cantidad USD"
+    >
+
+    <button class="main-button" onclick="sendMoney()">
+      Continuar
+    </button>
+
+    <button class="main-button close" onclick="closeSend()">
+      Cancelar
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- RECIBIR DINERO -->
+
+<div class="modal" id="receiveModal">
+
+  <div class="modal-content">
+
+    <h2>Recibir dinero</h2>
+
+    <p style="color:#777;margin-bottom:18px;">
+      Comparte tu número para recibir dinero con DL Pay.
+    </p>
+
+    <input
+      value="+1 000 000 0000"
+      readonly
+    >
+
+    <button class="main-button" onclick="shareNumber()">
+      Compartir
+    </button>
+
+    <button class="main-button close" onclick="closeReceive()">
+      Cerrar
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+function openSend() {
+  document.getElementById("sendModal").style.display = "flex";
+}
+
+function closeSend() {
+  document.getElementById("sendModal").style.display = "none";
+}
+
+function openReceive() {
+  document.getElementById("receiveModal").style.display = "flex";
+}
+
+function closeReceive() {
+  document.getElementById("receiveModal").style.display = "none";
+}
+
+function sendMoney() {
+
+  const phone = document.getElementById("phone").value;
+  const amount = document.getElementById("sendAmount").value;
+
+  if (!phone || !amount || amount <= 0) {
+    alert("Introduce el número y la cantidad.");
+    return;
+  }
+
+  alert(
+    "Solicitud creada.\n\n" +
+    "Destinatario: " + phone +
+    "\nCantidad: $" + amount +
+    "\n\nEsta es una demostración. Todavía no se mueve dinero real."
+  );
+
+  closeSend();
+}
+
+function shareNumber() {
+
+  if (navigator.share) {
+
+    navigator.share({
+      title: "DL Pay",
+      text: "Envíame dinero por DL Pay: +1 000 000 0000"
+    });
+
+  } else {
+
+    alert("Comparte tu número de DL Pay: +1 000 000 0000");
+
+  }
+}
+
+function showHistory() {
+
+  document.querySelector(".history").scrollIntoView({
+    behavior: "smooth"
+  });
+
+}
+
+</script>
+
+</body>
+  </html>
